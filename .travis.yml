@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Y9uhAs06QAtmaFmX9yNbzv5iPh1rlf99fCQiap9RrkEvaC6tGSlImpbnxoSby2eNOkIVBPEPgPt4tCwlkx5i6TFOX1BZIKj9ehvvz/sn94nSvj3t1ljQ2PTcVRPj6xn4UZZDWPiZHH/GZJATaqPGD+qaJbdqrsFGeTTcCgbRCdtwKx2wqPWLJvbNWQ2HaWBoUgBg0iuuEH/bSlJhpZG7I3gB2fhrzoSM9UrQJQRB8O8K7Ed1y0l93uzo6731LeZF4kR+a00T8obXkBY6UIAEGRQeXi1P2p5Ko0lRmkOI+CCoUa2bLN5XWE+OU4ysmOtmCdDoteKUSW7XWP4Mc3DVXw1EF/L5Z9qEn4z14hrUhmoaCn8xWjI/oM2wbLLm2+CyWhkvrhcUhHNxGYPEj6WAR1RIs3owsEP4yNzJVbWbLSFPkt+tRX1B/UIPu1G8WaRV5vV0EIYlvFxJg0+7/zvCaTIqtFMKkGQg9RJuuwYczYpbsSrSOo6EAygbK5m8oYpDMiwu9UVMQn159rtjycSQ+op8oOs+KH9C8SOIceGFJei3huuIUMaOjxOx+CD+91W0glH8gFJzdsk7ttny6BLesu4BPeXQz5x1u8YEIV96M5klvROpql4aZA67UBAszxbvv0RYo5MHieZn/oBmm08eGkhhiuCqvP/4taruNvazde4=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Cumner-s-Son-and-Other-South-Sea-Folk-Volume-04_6198
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
